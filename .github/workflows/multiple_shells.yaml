@@ -1,29 +1,43 @@
+# Nom affiché par GitHub Actions dans l'onglet « Actions ».
 name: Multiple shells commands
+# Événements qui déclenchent le workflow.
 on:
   push:
+    # Un push sur la branche main déclenche le workflow.
     branches:
       - "main"
   pull_request:
+    # Une pull request déclenche aussi le workflow lors de ces événements.
     types: [closed, assigned, opened, reopened]
+# Un job est un ensemble d'étapes exécutées sur une machine virtuelle.
 jobs:
   run-shell-command:
+    # Premier job : machine Linux hébergée par GitHub.
     runs-on: ubuntu-latest
     steps:
       - name: python commands
+        # Le bloc après « run » contient le programme exécuté.
         run: |
           import platform
           print(platform.processor())
+        # Utilise Python comme shell pour interpréter le bloc ci-dessus.
         shell: python
   run-windows-command:
+    # Deuxième job : machine Windows hébergée par GitHub.
     runs-on: windows-latest
+    # Attend que run-shell-command réussisse avant de démarrer.
     needs: ["run-shell-command"]
     steps:
       - name: current directory with powershell
+        # Sans « shell », l'étape utilise le shell par défaut de Windows :
+        # PowerShell (pwsh lorsqu'il est disponible).
         run: Get-Location
       - name: current directory with bash
+        # Ici, « shell » remplace le shell Windows par Bash.
         run: pwd
         shell: bash
       - name: print some default env variables
+        # Bash développe ${NOM} en la valeur de la variable d'environnement.
         run: |
           echo "HOME: ${HOME}"
           echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
